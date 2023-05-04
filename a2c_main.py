@@ -12,11 +12,9 @@ import torch.nn.functional as F
 def optimise(buffer):
 
     action_tensor = torch.stack(buffer.action)
-    #action_log_prob_tensor = torch.stack(buffer.action_log_prob).detach()
     reward_tensor = torch.tensor(buffer.reward)
     state_tensor = torch.stack(buffer.state)
     termination_tensor = torch.stack(buffer.termination)
-    #val_tensor = torch.stack(buffer.val ).detach()
 
     batch_data = {
         'action': action_tensor,
@@ -77,9 +75,9 @@ def env_step( current_states, actions):
 if __name__ == '__main__': 
 
     hyperparameters = {
-    "logs_dir":"exp_test_5",
+    "logs_dir":"exp_test_a2c",
     "model_dir":"",
-    "no_train_iterations":100000,
+    "no_train_iterations":200000,
     "lr":3e-4,
     "no_frames_to_network":4,
     "gamma":0.99,
