@@ -58,6 +58,9 @@ CUDA_DEVICE = torch.cuda.is_available()
 actor = Actor(hyperparameters)
 critic = Critic(hyperparameters)
 actor.apply(actor.init_weights)
-weights_dir = "exp_test_clip_0.2_longer_34/100_actor_.pt"
-actor.load_state_dict(torch.load(weights_dir))
+critic.apply(critic.init_weights)
+weights_dir_actor = "exp_test_clip_0.2/190000_actor_.pt"
+weights_dir_critic = "exp_test_clip_0.2/190000_critic_.pt"
+actor.load_state_dict(torch.load(weights_dir_actor))
+critic.load_state_dict(torch.load(weights_dir_critic))
 play_game()
