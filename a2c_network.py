@@ -9,11 +9,6 @@ import numpy as np
 class ActorCriticNetwork(torch.nn.Module):
 
     def __init__(self, hyperparameters):
-        """
-        Initialize an ActorCriticNetworkself.opt instance. The actor has an output for 
-        each action and the critic provides the value output
-        Uses the same parameters as specified in the paper.
-        """
         super(ActorCriticNetwork, self).__init__()
 
         # self.opt = options
@@ -39,30 +34,12 @@ class ActorCriticNetwork(torch.nn.Module):
 
 
     def init_weights(self, m):
-        """
-        Initialize the weights of the network.
-
-        Arguments:
-            m (tensor): layer instance 
-        """
         if type(m) == torch.nn.Conv2d or type(m) == torch.nn.Linear:
             torch.nn.init.uniform(m.weight, -0.01, 0.01)
             m.bias.data.fill_(0.01)
 
 
     def forward(self, x):
-        """
-        Forward pass to compute Q-values for given input states.
-
-        Arguments:
-            x (tensor): minibatch of input states
-
-        Returns:
-            int: selected action, 0 to do nothing and 1 to flap
-            float: entropy of action space
-            float: log probability of selecting the action 
-            float: value of the particular state
-        """
         # Forward pass
         x_input = x
         x_a = self.relu_1(self.convolution_1(x_input))
@@ -108,11 +85,7 @@ class ActorCriticNetwork(torch.nn.Module):
 
 
     def take_action(self, x):
-        """
-        Returns:
-            tensor(8,1)
-        """
-        # Forward pass
+         # Forward pass
         vals, action_logits = self.forward(x)
         probs = self.softmax(action_logits)
         log_probs = self.logsoftmax(action_logits)
