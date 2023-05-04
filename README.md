@@ -35,17 +35,19 @@ tensorboard --logdir <exp_name> # exp_name refers to the log directory
 
 1. A2C Actor-Critic Network: a2c_network.py
 2. PPO Actor-Critic Network: ppo_network.py
-3. The networks also comprise the code implementation of heatmaps. The heatmaps are stored in the parent folder.
-4. The parameter "logs_dir" has to be changed to a new logging folder for every training process.
-5. The actor-critic models and the logging information is saved by the training code under the folder specified by the "logs_dir".
-6. In both eval_a2c.py and eval_ppo.py the "weights_dir" variable is assigned the model which has to be tested.
+3. DQN Network: dqn_main.py
+4. The networks also comprise the code implementation of heatmaps. The heatmaps are stored in the parent folder.
+5. The parameter "logs_dir" (in the cases of A2C and PPO) and "exp_name" (in case of DQN) has to be changed to a new logging folder for every training process.
+6. The actor-critic models and the logging information is saved by the training code under the folder specified by the "logs_dir" in the cases of PPO and A2C.
+7. The DQN model and the logging information is saved by the training code under the folder specified by the "exp_name" in the case of DQN.
+8. In both eval_a2c.py and eval_ppo.py the "weights_dir" variable is assigned the model which has to be tested.
 
 ## 📖 Arguments and Hyperparameters
 Arguments and hyperparameters are passed to both the PPO and A2C agent using the dictionary "hyperparameters" found in their respective main functions.
 ``` sh
 hyperparameters = {
     "logs_dir":"exp_test_clip_0.2_longer_34", # Name of the logging directory
-    "model_dir":"", # Optional: name of the directory to store the actor-critic models separately from the logging directory, ensure you change the saving directory in the code accordingly.
+    "model_dir":"", # Optional: name of the directory to store and access the actor-critic models separately from the logging directory, ensure you change the saving directory in the code accordingly.
     "no_train_iterations":1000000, # Number of training iterations
     "lr":3e-4, # learning rate
     "no_frames_to_network":4, # Number of frames passed to the actor-critic network
@@ -61,6 +63,28 @@ hyperparameters = {
     "actions_n":2, # Denotes the 2 actions of the enviornment, flapping the bird's wing or no action
     "frame_size":84 # Size of game frame in pixels
     }
+```
+
+Arguments and hyperparameters are passed to the DQN agent using the namespace "params" found in dqn_main.py.
+``` sh
+    params = DQNParameters(
+        mode="train",  # "train" or "eval" mode
+        exp_name="exp3", # Name of the logging directory
+        weights_dir="", # Name of the model directory, for evaluation of the agent
+        n_train_iterations=200001, # Number of training iterations
+        learning_rate=1e-6, # learning rte 
+        len_agent_history=4, # Number of frames passed to the DQN network
+        discount_factor=0.99, # Discount factor
+        batch_size=32, # Batch size
+        initial_exploration=1.0, # Epsilon greedy action selection parameter
+        final_exploration=0.01, # Epsilon greedy action selection parameter
+        final_exploration_frame=1000000, # Epsilon greedy action selection parameter
+        replay_memory_size=25000, # maximum number of transitions in replay memory
+        log_frequency=100, # Frequency at which logging takes place
+        save_frequency=100000, # Frequency at which saving takes place
+        n_actions=2, # Denotes the 2 actions of the enviornment, flapping the bird's wing or no action
+        frame_size=84 # Size of game frame in pixels
+        )
 ```
 Note: The graph results are not reproducable as the enviornment does not comprise a seed function.
 
