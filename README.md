@@ -28,7 +28,7 @@ tensorboard --logdir <exp_name> # exp_name refers to the log directory
 2. PPO Actor-Critic Network: ppo_network.py
 3. The parameter "logs_dir" has to be changed to a new logging folder for every training process.
 4. The actor-critic models and the logging information is saved by the training code under the folder specified by the "logs_dir".
-5. In both eval_a2c.py and eval_ppo.py the "weights_dir" variable is assigned the model which has to be tested.
+5. In both eval_a2c.py and eval_ppo.py the "weights_dir" variable is assigned the path of the model which has to be tested.
 
 ## 📖 Arguments and Hyperparameters
 Arguments and hyperparameters are passed to both the PPO and A2C agent using the dictionary "hyperparameters" found in their respective main functions.
