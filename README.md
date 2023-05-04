@@ -8,6 +8,12 @@ Before running the code, ensure you download the enviornment "game" code from th
 
 
 ```sh
+# For DQN agent training
+python dqn_main.py # ensure the mode in the params namespace is set to "train"
+
+# For DQN agent evaluation
+python dqn_main.py # ensure the mode in the params namespace is set to "eval"
+
 # For A2C agent training
 python a2c_main.py
 
