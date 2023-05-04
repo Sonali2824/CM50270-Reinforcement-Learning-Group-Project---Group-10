@@ -10,8 +10,6 @@ class ActorCriticNetwork(torch.nn.Module):
 
     def __init__(self, hyperparameters):
         super(ActorCriticNetwork, self).__init__()
-
-        # self.opt = options
         
         self.convolution_1 = torch.nn.Conv2d(hyperparameters["no_frames_to_network"], 16, 8, 4)
         self.relu_1 = torch.nn.ReLU()
