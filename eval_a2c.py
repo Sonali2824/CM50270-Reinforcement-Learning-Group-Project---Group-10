@@ -6,7 +6,6 @@ from collections import namedtuple
 from a2c_network import ActorCriticNetwork
 
 from game.wrapper import Game
-from network import Actor, Critic
 import torch.nn.functional as F
 
 
@@ -57,7 +56,7 @@ hyperparameters = {
 CUDA_DEVICE = torch.cuda.is_available()
 actorCritic = ActorCriticNetwork(hyperparameters)
 actorCritic.apply(actorCritic.init_weights)
-weights_dir = "exp_test_4/0099000.pt"
+weights_dir = "exp_test_5/0001000.pt"
 actorCritic.load_state_dict(torch.load(weights_dir))
 play_game()
 

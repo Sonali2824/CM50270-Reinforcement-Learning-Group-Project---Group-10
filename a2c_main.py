@@ -5,7 +5,6 @@ from tensorboardX import SummaryWriter
 from collections import namedtuple
 
 from game.wrapper import Game
-from network import Actor, Critic
 from a2c_network import ActorCriticNetwork
 import torch.nn.functional as F
 
