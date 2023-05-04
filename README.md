@@ -6,6 +6,7 @@ The environment used: Flappy Bird 🐦. Training is performed on pixelated data 
 ## ⚙️ Running the code
 Before running the code, ensure you download the enviornment "game" code from the github repository using the <a href="https://github.com/lambders/flappy-bird/tree/6ff0b956886f7b2ac8e08907ce7883bf810ca338"> <b>Game folder link</b></a>. The "game" folder is required to setup the Flappy Bird Enviornment.
 
+
 ```sh
 # For A2C agent training
 python a2c_main.py
@@ -28,9 +29,10 @@ tensorboard --logdir <exp_name> # exp_name refers to the log directory
 
 1. A2C Actor-Critic Network: a2c_network.py
 2. PPO Actor-Critic Network: ppo_network.py
-3. The parameter "logs_dir" has to be changed to a new logging folder for every training process.
-4. The actor-critic models and the logging information is saved by the training code under the folder specified by the "logs_dir".
-5. In both eval_a2c.py and eval_ppo.py the "weights_dir" variable is assigned the path of the model which has to be tested.
+3. The networks also comprise the code implementation of heatmaps. The heatmaps are stored in the parent folder.
+4. The parameter "logs_dir" has to be changed to a new logging folder for every training process.
+5. The actor-critic models and the logging information is saved by the training code under the folder specified by the "logs_dir".
+6. In both eval_a2c.py and eval_ppo.py the "weights_dir" variable is assigned the model which has to be tested.
 
 ## 📖 Arguments and Hyperparameters
 Arguments and hyperparameters are passed to both the PPO and A2C agent using the dictionary "hyperparameters" found in their respective main functions.
@@ -54,4 +56,5 @@ hyperparameters = {
     "frame_size":84 # Size of game frame in pixels
     }
 ```
+
 To implement the environment, we utilised the `drl-experiments` repository by [@lambders](https://github.com/lambders/drl-experiments). The DQN, A2C and PPO implementations in [@lambders](https://github.com/lambders/drl-experiments) were considered as baselines for our project. Our network and general flow of the algorithms was adapted from [@lambders](https://github.com/lambders/drl-experiments).

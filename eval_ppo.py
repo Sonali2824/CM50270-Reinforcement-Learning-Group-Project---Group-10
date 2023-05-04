@@ -1,3 +1,4 @@
+# This code was adapted from: https://github.com/lambders/drl-experiments/blob/master/ppo.py
 import os
 import torch
 import numpy as np 
@@ -11,35 +12,25 @@ import torch.nn.functional as F
 from ppo_main import get_action
 
 def play_game():
-    """
-    Play Flappy Bird using the trained network.
-    """
-    game = [Game(hyperparameters["frame_size"]) for i in range(hyperparameters["workers"])]
-    # Initialize the environment and state (do nothing)
-    game = game[0]
-    frame, reward, done = game.step(0)
-    state = torch.cat([frame for i in range(hyperparameters["no_frames_to_network"])])
+
+    game_simulations = [Game(hyperparameters["frame_size"]) for i in range(hyperparameters["workers"])]
+    game_simulations = game_simulations[0]
+    frame, reward, done = game_simulations.step(0)
+    current_state = torch.cat([frame for i in range(hyperparameters["no_frames_to_network"])])
     len = 0
-    # Start playing
     while True:
         len+=1
-
-        # Perform an action
-        state = state.unsqueeze(0)
+        current_state = current_state.unsqueeze(0)
         if CUDA_DEVICE:
-            state = state.cuda()
-        _, action, _ = get_action(actor, critic, state)
+            current_state = current_state.cuda()
+        _, action, _ = get_action(actor, critic, current_state)
         if CUDA_DEVICE:
             action = action.cuda()
-        frame, reward, done = game.step(action)
+        frame, reward, done = game_simulations.step(action)
         if CUDA_DEVICE:
             frame = frame.cuda()
-        next_state = torch.cat([state[0][1:], frame])
-
-        # Move on to the next state
-        state = next_state
-
-        # If we lost, exit
+        next_state = torch.cat([current_state[0][1:], frame])
+        current_state = next_state
         if done:
             print(len, "len")
             break
@@ -67,6 +58,6 @@ CUDA_DEVICE = torch.cuda.is_available()
 actor = Actor(hyperparameters)
 critic = Critic(hyperparameters)
 actor.apply(actor.init_weights)
-weights_dir = "exp_test_clip_0.2/190000_actor_.pt"
+weights_dir = "exp_test_clip_0.2_longer_34/100_actor_.pt"
 actor.load_state_dict(torch.load(weights_dir))
 play_game()

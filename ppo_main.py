@@ -1,3 +1,4 @@
+# This code was adapted from: https://github.com/lambders/drl-experiments/blob/master/ppo.py
 import os
 import torch
 import numpy as np 
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     "norm_clip_grad":40,
     "clip":0.2,
     "log_freq":100,
-    "save_freq":10000,
+    "save_freq":100,
     "actions_n":2,
     "frame_size":84
     }
