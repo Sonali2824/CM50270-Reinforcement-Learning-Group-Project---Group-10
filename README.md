@@ -52,3 +52,4 @@ hyperparameters = {
     "frame_size":84 # Size of game frame in pixels
     }
 ```
+To implement the environment, we utilised the `drl-experiments` repository by [@lambders](https://github.com/lambders/drl-experiments). The DQN, A2C and PPO implementations in [@lambders](https://github.com/lambders/drl-experiments) were considered as baselines for our project. Our network and general flow of the algorithms was adapted from [@lambders](https://github.com/lambders/drl-experiments).
