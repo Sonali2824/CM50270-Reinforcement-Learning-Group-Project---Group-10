@@ -39,7 +39,7 @@ Arguments and hyperparameters are passed to both the PPO and A2C agent using the
 ``` sh
 hyperparameters = {
     "logs_dir":"exp_test_clip_0.2_longer_34", # Name of the logging directory
-    "model_dir":"", # Optional: name of the directory to store the actor-critic models seprately from the logging directory
+    "model_dir":"", # Optional: name of the directory to store the actor-critic models separately from the logging directory, ensure you change the saving directory in the code accordingly.
     "no_train_iterations":1000000, # Number of training iterations
     "lr":3e-4, # learning rate
     "no_frames_to_network":4, # Number of frames passed to the actor-critic network
