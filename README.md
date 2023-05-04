@@ -1,8 +1,10 @@
 # CM50270-Reinforcement-Learning-Group-Project---Group-10
 Project Requirement : Applying reinforcement learning methods to solve a problem of the group's choice. The problem's state/action space must be large enough so that tabular reinforcement learning methods cannot be used to solve it effectively. The objective is to solve the chosen problem to the best of the group's ability.
 
+The enviornment used: Flappy Bird 🐦. Training is performed on pixelated data and not features.
 
 ## ⚙️ Running the code
+Before running the code, ensure you download the enviornment "game" code from the github repository using the <a href="https://github.com/lambders/flappy-bird/tree/6ff0b956886f7b2ac8e08907ce7883bf810ca338"> <b>Game folder link</b></a>. The "game" folder is required to setup the Flappy Bird Enviornment.
 
 ```sh
 # For A2C agent training
