@@ -1,5 +1,6 @@
 # This code was adapted from: https://github.com/lambders/drl-experiments/blob/master/dqn.py
 
+import os
 import math
 import random
 import argparse
@@ -63,7 +64,6 @@ class DQN(nn.Module):
         # input
         image_rescaled = (255*x_input[0][0]).clamp(0, 255).byte()  # Rescale and convert to byte tensor
         image_rgb = image_rescaled.unsqueeze(2).repeat(1, 1, 3)  # Add a third dimension and repeat values along it
-        image_rgb = image_rgb.cpu()
         cv2.imwrite('input_image.png', image_rgb.numpy())  # Save the image using cv2.imwrite()
 
         # Compute heatmap
@@ -94,23 +94,23 @@ class ReplayMemory():
 
 
     def __init__(self, options):
-        self.mem = []
-        self.capacity = options.replay_mem_size
+        self.memory = []
+        self.capacity = options.replay_memory_size
 
 
 
     def add(self, experience):
-        self.mem.append(experience)
+        self.memory.append(experience)
 
-        if len(self.mem) > self.capacity:
-            self.mem.pop(0)
+        if len(self.memory) > self.capacity:
+            self.memory.pop(0)
 
 
     def sample(self, batch_size):
-        if batch_size > len(self.mem):
+        if batch_size > len(self.memory):
             return None
 
-        sample = random.sample(self.mem, batch_size)
+        sample = random.sample(self.memory, batch_size)
 
         state = torch.stack([torch.tensor(exp.state) for exp in sample])
         action = torch.tensor([exp.action for exp in sample]).unsqueeze(1)
@@ -139,9 +139,12 @@ class ReplayMemory():
 class DQNAgent:
 
     def __init__(self, options):
+        """
+        Initialize an agent instance.
+        """
         self.opt = options
 
-        self.replay_mem = ReplayMemory(self.opt)
+        self.replay_memory = ReplayMemory(self.opt)
 
         self.epsilon = np.linspace(
             self.opt.initial_exploration, 
@@ -191,21 +194,21 @@ class DQNAgent:
 
     def optimize_model(self):
 
-        batch = self.replay_mem.sample(self.opt.batch_size)
+        batch = self.replay_memory.sample(self.opt.batch_size)
         if batch is None:
             return
 
-        q = self.net(batch['state']).gather(1, batch['action']).squeeze()
+        q_batch = self.net(batch['state']).gather(1, batch['action']).squeeze()
 
 
-        q_1, _ = torch.max(self.net(batch['next_state']), dim=1)
-        y = torch.where(batch['done'], batch['reward'], 
-                           batch['reward'] + self.opt.discount_factor * q_1)
+        q_batch_1, _ = torch.max(self.net(batch['next_state']), dim=1)
+        y_batch = torch.where(batch['done'], batch['reward'], 
+                           batch['reward'] + self.opt.discount_factor * q_batch_1)
         if CUDA_DEVICE:
-            y = y.cuda()
-        y = y.detach()
+            y_batch = y_batch.cuda()
+        y_batch = y_batch.detach()
 
-        loss = self.loss(q, y)
+        loss = self.loss(q_batch, y_batch)
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -223,7 +226,7 @@ class DQNAgent:
             action = self.select_action(state, i)
             frame, reward, done = self.game.step(action)
             next_state = torch.cat([state[1:], frame])
-            self.replay_mem.add(
+            self.replay_memory.add(
                 Experience(state, action, reward, next_state, done)
             )
             loss = self.optimize_model()
