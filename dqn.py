@@ -1,6 +1,5 @@
 # This code was adapted from: https://github.com/lambders/drl-experiments/blob/master/dqn.py
 
-import os
 import math
 import random
 import argparse
@@ -30,10 +29,10 @@ class DQN(nn.Module):
     def __init__(self, options):
         super().__init__()
 
-        self.opt = options
+        self.param = options
         
         self.layers_1 = nn.Sequential(
-            nn.Conv2d(self.opt.len_agent_history, 32, 8, 4),
+            nn.Conv2d(self.param.no_frames_to_network, 32, 8, 4),
             nn.ReLU(inplace=True),
             nn.Conv2d(32, 64, 4, 2),
             nn.ReLU(inplace=True),
@@ -44,7 +43,7 @@ class DQN(nn.Module):
             nn.Flatten(),
             nn.Linear(3136, 512),
             nn.ReLU(inplace=True),
-            nn.Linear(512, self.opt.n_actions)
+            nn.Linear(512, self.param.actions_n)
         )
     
 
@@ -64,6 +63,7 @@ class DQN(nn.Module):
         # input
         image_rescaled = (255*x_input[0][0]).clamp(0, 255).byte()  # Rescale and convert to byte tensor
         image_rgb = image_rescaled.unsqueeze(2).repeat(1, 1, 3)  # Add a third dimension and repeat values along it
+        image_rgb = image_rgb.cpu()
         cv2.imwrite('input_image.png', image_rgb.numpy())  # Save the image using cv2.imwrite()
 
         # Compute heatmap
@@ -94,23 +94,23 @@ class ReplayMemory():
 
 
     def __init__(self, options):
-        self.memory = []
-        self.capacity = options.replay_memory_size
+        self.mem = []
+        self.capacity = options.replay_size
 
 
 
     def add(self, experience):
-        self.memory.append(experience)
+        self.mem.append(experience)
 
-        if len(self.memory) > self.capacity:
-            self.memory.pop(0)
+        if len(self.mem) > self.capacity:
+            self.mem.pop(0)
 
 
-    def sample(self, batch_size):
-        if batch_size > len(self.memory):
+    def sample(self, size_of_batch):
+        if size_of_batch > len(self.mem):
             return None
 
-        sample = random.sample(self.memory, batch_size)
+        sample = random.sample(self.mem, size_of_batch)
 
         state = torch.stack([torch.tensor(exp.state) for exp in sample])
         action = torch.tensor([exp.action for exp in sample]).unsqueeze(1)
@@ -139,40 +139,37 @@ class ReplayMemory():
 class DQNAgent:
 
     def __init__(self, options):
-        """
-        Initialize an agent instance.
-        """
-        self.opt = options
+        self.param = options
 
-        self.replay_memory = ReplayMemory(self.opt)
+        self.replay_mem = ReplayMemory(self.param)
 
         self.epsilon = np.linspace(
-            self.opt.initial_exploration, 
-            self.opt.final_exploration, 
-            self.opt.final_exploration_frame
+            self.param.init_explor, 
+            self.param.fin_explor, 
+            self.param.fin_explor_frame
         )
 
-        self.net = DQN(self.opt)
-        if self.opt.mode == 'train':
-            self.net.apply(self.net.init_weights)
-            if self.opt.weights_dir:
-                self.net.load_state_dict(torch.load(self.opt.weights_dir))
-        if self.opt.mode == 'eval':
-            self.net.load_state_dict(torch.load(self.opt.weights_dir, map_location=torch.device('cpu')))
+        self.dqn_net = DQN(self.param)
+        if self.param.func_mode == 'train':
+            self.dqn_net.apply(self.dqn_net.init_weights)
+            if self.param.model_dir:
+                self.dqn_net.load_state_dict(torch.load(self.param.model_dir))
+        if self.param.func_mode == 'eval':
+            self.dqn_net.load_state_dict(torch.load(self.param.model_dir, map_location=torch.device('cpu')))
 
 
         if CUDA_DEVICE:
-            self.net = self.net.cuda()
+            self.dqn_net = self.dqn_net.cuda()
 
         self.optimizer = torch.optim.Adam(
-            self.net.parameters(),
-            lr=self.opt.learning_rate
+            self.dqn_net.parameters(),
+            lr=self.param.lr
         )
 
-        self.game = Game(self.opt.frame_size) 
+        self.game = Game(self.param.frame_size) 
 
-        if self.opt.mode == 'train':
-            self.writer = SummaryWriter(self.opt.exp_name)
+        if self.param.func_mode == 'train':
+            self.summary_writer = SummaryWriter(self.param.logs_dir)
 
         self.loss = torch.nn.MSELoss()
 
@@ -183,32 +180,32 @@ class DQNAgent:
         if CUDA_DEVICE:
             state = state.cuda()
 
-        epsilon = self.epsilon[min(step, self.opt.final_exploration_frame - 1)]
+        epsilon = self.epsilon[min(step, self.param.fin_explor_frame - 1)]
     
 
         if random.random() <= epsilon:
-            return np.random.choice(self.opt.n_actions, p=[0.95, 0.05])
+            return np.random.choice(self.param.actions_n, p=[0.95, 0.05])
         else:
-            return torch.argmax(self.net(state)).item()
+            return torch.argmax(self.dqn_net(state)).item()
 
 
     def optimize_model(self):
 
-        batch = self.replay_memory.sample(self.opt.batch_size)
-        if batch is None:
+        batch_data = self.replay_mem.sample(self.param.size_of_batch)
+        if batch_data is None:
             return
 
-        q_batch = self.net(batch['state']).gather(1, batch['action']).squeeze()
+        q = self.dqn_net(batch_data['state']).gather(1, batch_data['action']).squeeze()
 
 
-        q_batch_1, _ = torch.max(self.net(batch['next_state']), dim=1)
-        y_batch = torch.where(batch['done'], batch['reward'], 
-                           batch['reward'] + self.opt.discount_factor * q_batch_1)
+        q_1, _ = torch.max(self.dqn_net(batch_data['next_state']), dim=1)
+        y = torch.where(batch_data['done'], batch_data['reward'], 
+                           batch_data['reward'] + self.param.gamma * q_1)
         if CUDA_DEVICE:
-            y_batch = y_batch.cuda()
-        y_batch = y_batch.detach()
+            y = y.cuda()
+        y = y.detach()
 
-        loss = self.loss(q_batch, y_batch)
+        loss = self.loss(q, y)
 
         self.optimizer.zero_grad()
         loss.backward()
@@ -221,25 +218,25 @@ class DQNAgent:
 
         eplen = 0
         frame, reward, done = self.game.step(0)
-        state = torch.cat([frame for i in range(self.opt.len_agent_history)])
-        for i in range(1, self.opt.n_train_iterations):
-            action = self.select_action(state, i)
+        current_state = torch.cat([frame for i in range(self.param.no_frames_to_network)])
+        for i in range(1, self.param.no_train_iterations):
+            action = self.select_action(current_state, i)
             frame, reward, done = self.game.step(action)
-            next_state = torch.cat([state[1:], frame])
-            self.replay_memory.add(
-                Experience(state, action, reward, next_state, done)
+            next_state = torch.cat([current_state[1:], frame])
+            self.replay_mem.add(
+                Experience(current_state, action, reward, next_state, done)
             )
             loss = self.optimize_model()
-            state = next_state
-            if i % self.opt.save_frequency == 0:
-                if not os.path.exists(self.opt.exp_name):
-                    os.mkdir(self.opt.exp_name)
-                torch.save(self.net.state_dict(), f'{self.opt.exp_name}/{str(i).zfill(7)}.pt')
-            if i % self.opt.log_frequency == 0:
-                self.writer.add_scalar('loss', loss, i)
+            current_state = next_state
+            if i % self.param.save_freq == 0:
+                if not os.path.exists(self.param.logs_dir):
+                    os.mkdir(self.param.logs_dir)
+                torch.save(self.dqn_net.state_dict(), f'{self.param.logs_dir}/{str(i).zfill(7)}.pt')
+            if i % self.param.log_freq == 0:
+                self.summary_writer.add_scalar('loss', loss, i)
             eplen += 1
             if done:
-                self.writer.add_scalar('episode_length', eplen, i)
+                self.summary_writer.add_scalar('episode_length', eplen, i)
                 eplen = 0
 
 
@@ -248,20 +245,20 @@ class DQNAgent:
 
         with torch.no_grad(): 
             frame, reward, done = self.game.step(0)
-            state = torch.cat([frame for i in range(self.opt.len_agent_history)])
+            current_state = torch.cat([frame for i in range(self.param.no_frames_to_network)])
 
             while True:
                 len+=1
-                state = state.unsqueeze(0)
+                current_state = current_state.unsqueeze(0)
                 if CUDA_DEVICE:
-                    state = state.cuda()
-                action = torch.argmax(self.net(state)[0])
+                    current_state = current_state.cuda()
+                action = torch.argmax(self.dqn_net(current_state)[0])
                 frame, reward, done = self.game.step(action)
                 if CUDA_DEVICE:
                     frame = frame.cuda()
-                next_state = torch.cat([state[0][1:], frame])
+                next_state = torch.cat([current_state[0][1:], frame])
 
-                state = next_state
+                current_state = next_state
 
                 if done:
                     print("len", len)
