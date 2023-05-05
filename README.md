@@ -41,6 +41,12 @@ tensorboard --logdir <exp_name> # exp_name refers to the log directory
 6. The actor-critic models and the logging information is saved by the training code under the folder specified by the "logs_dir" in the cases of PPO and A2C.
 7. The DQN model and the logging information is saved by the training code under the folder specified by the "exp_name" in the case of DQN.
 8. In both eval_a2c.py and eval_ppo.py the "weights_dir" variable is assigned the model which has to be tested.
+9. In order to disable the rendering add the below code
+```sh
+import os
+os.environ['SDL_AUDIODRIVER'] = 'dummy'
+os.environ['SDL_VIDEODRIVER']='dummy'
+```
 
 ## 📖 Arguments and Hyperparameters
 Arguments and hyperparameters are passed to both the PPO and A2C agent using the dictionary "hyperparameters" found in their respective main functions.
