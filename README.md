@@ -84,4 +84,11 @@ Arguments and hyperparameters different to DQN agent. DQN uses the namespace "pa
 ```
 Note: The graph results are not reproducable as the enviornment does not comprise a seed function.
 
+
+## 🏋 Weight Files
+1. <a href="https://github.com/Sonali2824/CM50270-Reinforcement-Learning-Group-Project---Group-10/blob/main/Model_DQN.pt"> <b>DQN Weight File</b></a>
+2. <a href="https://github.com/Sonali2824/CM50270-Reinforcement-Learning-Group-Project---Group-10/blob/main/Mode_A2C.pt"> <b>A2C Weight File</b></a>
+3. <a href="https://github.com/Sonali2824/CM50270-Reinforcement-Learning-Group-Project---Group-10/blob/main/Model_PPO_actor_.pt"> <b>PPO Actor Weight File</b></a>
+4. <a href="https://github.com/Sonali2824/CM50270-Reinforcement-Learning-Group-Project---Group-10/blob/main/Model_PPO_critic_.pt"> <b>PPO Critic Weight File</b></a>
+
 To implement the environment, we utilised the `drl-experiments` repository by [@lambders](https://github.com/lambders/drl-experiments). The DQN, A2C and PPO implementations in [@lambders](https://github.com/lambders/drl-experiments) were considered as baselines for our project. Our network and general flow of the algorithms was adapted from [@lambders](https://github.com/lambders/drl-experiments).
