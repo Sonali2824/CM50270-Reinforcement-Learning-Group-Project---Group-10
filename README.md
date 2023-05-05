@@ -71,25 +71,15 @@ hyperparameters = {
     }
 ```
 
-Arguments and hyperparameters are passed to the DQN agent using the namespace "params" found in dqn_main.py.
+Arguments and hyperparameters different to DQN agent. DQN uses the namespace "params" found in dqn_main.py.
 ``` sh
     params = DQNParameters(
-        mode="train",  # "train" or "eval" mode
-        exp_name="exp3", # Name of the logging directory
-        weights_dir="", # Name of the model directory, for evaluation of the agent
-        n_train_iterations=200001, # Number of training iterations
-        learning_rate=1e-6, # learning rte 
-        len_agent_history=4, # Number of frames passed to the DQN network
-        discount_factor=0.99, # Discount factor
-        batch_size=32, # Batch size
-        initial_exploration=1.0, # Epsilon greedy action selection parameter
-        final_exploration=0.01, # Epsilon greedy action selection parameter
-        final_exploration_frame=1000000, # Epsilon greedy action selection parameter
-        replay_memory_size=25000, # maximum number of transitions in replay memory
-        log_frequency=100, # Frequency at which logging takes place
-        save_frequency=100000, # Frequency at which saving takes place
-        n_actions=2, # Denotes the 2 actions of the enviornment, flapping the bird's wing or no action
-        frame_size=84 # Size of game frame in pixels
+        func_mode="train",  # "train" or "eval" mode
+        size_of_batch=32, # Batch size
+        init_explor=1.0, # Epsilon greedy action selection parameter
+        fin_explor=0.01, # Epsilon greedy action selection parameter
+        fin_explor_frame=1000000, # Epsilon greedy action selection parameter
+        replay_size=25000, # maximum number of transitions in replay memory
         )
 ```
 Note: The graph results are not reproducable as the enviornment does not comprise a seed function.
